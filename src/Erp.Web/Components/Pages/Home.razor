@@ -1,0 +1,26 @@
+@page "/"
+@inject IHttpClientFactory HttpClientFactory
+@rendermode InteractiveServer
+
+<div class="shell">
+  <aside><h2>LOCAL ERP</h2><div class="navactive">Dashboard</div><div>Businesses <span>Planned</span></div><div>Users & Roles <span>Planned</span></div><div>Inventory <span>Planned</span></div><div>Sales & Purchases <span>Planned</span></div><div>Workbooks <span>Planned</span></div><div>Reports <span>Planned</span></div></aside>
+  <main>
+    <div class="top"><div><small>Development environment · .NET 10</small><h1>ERP Workspace</h1><p>Multi-business ERP foundation for local hosting</p></div><span class="tag">LOCAL DEVELOPMENT</span></div>
+    <div class="cards"><section><strong>09</strong><span>Planned business profiles</span></section><section><strong>RBAC</strong><span>Schema foundation</span></section><section><strong>PostgreSQL</strong><span>Local database</span></section></div>
+    <section class="panel"><h2>Environment diagnostics</h2><p>Check whether your local API and PostgreSQL server are running.</p><div class="actions"><button @onclick="CheckApi">Check API</button><button class="secondary" @onclick="CheckDatabase">Check Database</button></div><p class="status">@apiStatus</p><p class="status">@dbStatus</p></section>
+    <section class="panel"><h2>Planned modules</h2><div class="modules"><div>🏪 Multi-business isolation</div><div>🔒 Roles & Permissions</div><div>📦 Products / Stock</div><div>🧾 Sales / Purchases</div><div>📒 Accounting Workbooks</div><div>📊 Financial Reports</div></div></section>
+    <p class="note">Starter only: actual transactions and user authentication are intentionally disabled until server-side authorization, posting rules and tests are implemented.</p>
+  </main>
+</div>
+@code {
+ private string apiStatus = "API has not been checked";
+ private string dbStatus = "Database has not been checked";
+ private async Task CheckApi() {
+   try { using var client = HttpClientFactory.CreateClient("erp-api"); var response = await client.GetAsync("/api/health"); apiStatus = response.IsSuccessStatusCode ? "✓ API is running on localhost:5101" : $"API returned {(int)response.StatusCode}"; }
+   catch (Exception ex) { apiStatus = $"API connection failed: {ex.Message}"; }
+ }
+ private async Task CheckDatabase() {
+   try { using var client = HttpClientFactory.CreateClient("erp-api"); var response = await client.GetAsync("/api/health/database"); dbStatus = response.IsSuccessStatusCode ? "✓ PostgreSQL connection successful" : $"PostgreSQL connection unavailable (HTTP {(int)response.StatusCode})"; }
+   catch (Exception ex) { dbStatus = $"Database check unavailable: {ex.Message}"; }
+ }
+}
